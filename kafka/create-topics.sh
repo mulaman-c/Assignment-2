@@ -1,21 +1,30 @@
 #!/bin/bash
+set -euo pipefail
 
-# Wait for Kafka to be ready
-echo "Creating Kafka topics for Distributed Food Delivery Platform..."
+BOOTSTRAP="${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}"
+PARTITIONS="${PARTITIONS:-3}"
+REPLICATION="${REPLICATION:-1}"
+TOPICS="
+orders.created
+orders.confirmed
+orders.rejected
+orders.preparing
+orders.ready
+orders.cancelled
+payments.completed
+payments.failed
+delivery.assigned
+delivery.picked_up
+delivery.completed
+orders.dlq
+payments.dlq
+delivery.dlq
+notifications.dlq
+"
 
-# Topic 1: Emitted when customer places an order
-kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1 --topic orders.created
+for topic in $TOPICS; do
+    kafka-topics --bootstrap-server "$BOOTSTRAP" --create --if-not-exists \
+        --topic "$topic" --partitions "$PARTITIONS" --replication-factor "$REPLICATION"
+done
 
-# Topic 2: Emitted when payment service processes payment
-kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1 --topic payments.completed
-
-# Topic 3: Emitted when restaurant updates kitchen order status
-kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1 --topic restaurant.order-status
-
-# Topic 4: Emitted when driver is assigned to a delivery
-kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1 --topic delivery.assigned
-
-# Topic 5: Emitted when order delivery is finalized
-kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1 --topic delivery.completed
-
-echo "All Kafka topics created successfully!"
+kafka-topics --bootstrap-server "$BOOTSTRAP" --list

@@ -1,6 +1,5 @@
-FROM ballerina/ballerina:2201.8.0
+FROM ballerina/ballerina:2201.13.4
 WORKDIR /app
-COPY . .
-EXPOSE 9090
+COPY --chown=ballerina:troupe . .
+EXPOSE 9098
 CMD [ "bal", "run" ]
-
