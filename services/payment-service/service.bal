@@ -53,7 +53,11 @@ function getKafkaBootstrapServers() returns string {
 }
 
 string kafkaBootstrapServers = getKafkaBootstrapServers();
-kafka:Producer paymentProducer = checkpanic new (kafkaBootstrapServers);
+kafka:ProducerConfiguration producerConfigs = {
+    clientId: "payment-service-producer",
+    acks: "all"
+};
+kafka:Producer paymentProducer = checkpanic new (kafkaBootstrapServers, producerConfigs);
 kafka:ConsumerConfiguration consumerConfigs = {
     groupId: "payment-service",
     topics: ["orders.created"],

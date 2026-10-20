@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f5f0">
+    <title>Goodfood | Operations</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="/" aria-label="Goodfood home">
+            <span class="brand-mark">g</span>
+            <span>goodfood<span class="brand-dot">.</span></span>
+        </a>
+        <div class="topbar-meta">
+            <span class="live-dot" aria-hidden="true"></span>
+            <span>LOCAL OPERATIONS</span>
+            <button class="button button-quiet" id="refresh-button" type="button">Refresh data</button>
+        </div>
+    </header>
+
+    <main class="shell">
+        <section class="intro">
+            <div>
+                <p class="eyebrow">FOOD DELIVERY PLATFORM <span>/</span> CONTROL CENTER</p>
+                <h1>Good things<br><span>are in motion.</span></h1>
+                <p class="intro-copy">Create an order, watch services react to Kafka events, and follow the delivery through to the door.</p>
+            </div>
+            <aside class="flow-card">
+                <p class="eyebrow">EVENT FLOW</p>
+                <div class="flow">
+                    <span>ORDER</span><i></i><span>RESTAURANT</span><i></i><span>DELIVERY</span>
+                </div>
+                <p class="flow-note">Each hand-off is published to Kafka and consumed by the next service.</p>
+            </aside>
+        </section>
+
+        <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+
+        <section class="metrics" aria-label="Platform overview">
+            <article class="metric-card"><span class="metric-label">ORDERS PROCESSED</span><strong id="metric-orders">—</strong><span class="metric-hint">Across the platform</span></article>
+            <article class="metric-card"><span class="metric-label">PLATFORM REVENUE</span><strong id="metric-revenue">—</strong><span class="metric-hint">From completed payments</span></article>
+            <article class="metric-card"><span class="metric-label">ACTIVE DRIVERS</span><strong id="metric-drivers">—</strong><span class="metric-hint">Reported by admin service</span></article>
+            <article class="metric-card metric-card-accent"><span class="metric-label">CUSTOMERS</span><strong id="metric-customers">—</strong><span class="metric-hint">Registered in this environment</span></article>
+        </section>
+
+        <section class="work-grid">
+            <article class="panel">
+                <div class="panel-heading">
+                    <div><p class="eyebrow">01 / CUSTOMER</p><h2>Welcome them in</h2></div>
+                    <span class="panel-icon">+</span>
+                </div>
+                <form id="customer-form" class="form-grid">
+                    <label class="field field-wide">Full name<input name="name" autocomplete="name" required placeholder="Jordan Lee"></label>
+                    <label class="field">Email<input name="email" type="email" autocomplete="email" required placeholder="jordan@example.com"></label>
+                    <label class="field">Phone<input name="phone" type="tel" autocomplete="tel" placeholder="+1 555 0100"></label>
+                    <label class="field field-wide">Street address<input name="street" autocomplete="street-address" required placeholder="24 Market Street"></label>
+                    <label class="field">City<input name="city" autocomplete="address-level2" required placeholder="Brooklyn"></label>
+                    <label class="field">Postal code<input name="postalCode" autocomplete="postal-code" required placeholder="11201"></label>
+                    <button class="button button-primary field-wide" type="submit">Create customer <span aria-hidden="true">↗</span></button>
+                </form>
+            </article>
+
+            <article class="panel panel-dark">
+                <div class="panel-heading">
+                    <div><p class="eyebrow">02 / ORDER</p><h2>Make it delicious</h2></div>
+                    <span class="panel-icon panel-icon-light">↗</span>
+                </div>
+                <form id="order-form" class="form-grid">
+                    <label class="field field-wide">Customer<select name="customerId" id="customer-select" required><option value="">Register or select a customer</option></select></label>
+                    <label class="field field-wide">Restaurant ID<input name="restaurantId" required value="REST-1"></label>
+                    <label class="field field-wide">What are they having?<input name="itemName" required value="Market veggie bowl" placeholder="Dish name"></label>
+                    <label class="field">Price<input name="price" type="number" min="0.01" step="0.01" required value="14.50"></label>
+                    <label class="field">Quantity<input name="quantity" type="number" min="1" step="1" required value="1"></label>
+                    <button class="button button-lime field-wide" type="submit">Place order <span aria-hidden="true">↗</span></button>
+                </form>
+                <p class="panel-footnote">Placing an order publishes <code>orders.created</code>.</p>
+            </article>
+        </section>
+
+        <section class="panel board-panel">
+            <div class="panel-heading board-heading">
+                <div><p class="eyebrow">03 / LIVE WORKFLOW</p><h2>Orders on the move</h2></div>
+                <span class="subtle-label"><span class="live-dot"></span> Updates every 5 seconds</span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>ORDER</th><th>CUSTOMER</th><th>RESTAURANT</th><th>STATUS</th><th>VALUE</th></tr></thead>
+                    <tbody id="orders-body"><tr><td colspan="5" class="empty-state">Loading orders…</td></tr></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="work-grid lower-grid">
+            <article class="panel">
+                <div class="panel-heading">
+                    <div><p class="eyebrow">04 / RESTAURANT</p><h2>Kitchen queue</h2></div>
+                    <span class="panel-icon">01</span>
+                </div>
+                <div id="restaurant-queue" class="stack-list"><p class="empty-state">Waiting for restaurant orders…</p></div>
+            </article>
+
+            <article class="panel">
+                <div class="panel-heading">
+                    <div><p class="eyebrow">05 / DELIVERY</p><h2>Get it there</h2></div>
+                    <span class="panel-icon">02</span>
+                </div>
+                <form id="driver-form" class="inline-form">
+                    <label class="field">Add a driver<input name="name" required placeholder="Driver name"></label>
+                    <label class="field">Phone<input name="phone" type="tel" placeholder="+1 555 0101"></label>
+                    <button class="button button-outline" type="submit">Add driver</button>
+                </form>
+                <div id="delivery-queue" class="stack-list"><p class="empty-state">Waiting for ready orders…</p></div>
+                <div class="divider"></div>
+                <p class="eyebrow">ACTIVE DELIVERIES</p>
+                <div id="active-deliveries" class="stack-list"><p class="empty-state">No deliveries assigned yet.</p></div>
+            </article>
+        </section>
+
+        <section class="panel notifications-panel">
+            <div class="panel-heading">
+                <div><p class="eyebrow">06 / CUSTOMER EXPERIENCE</p><h2>Notification stream</h2></div>
+                <label class="notification-filter">For<select id="notification-customer"><option value="">Choose a customer</option></select></label>
+            </div>
+            <div id="notifications-list" class="notification-list"><p class="empty-state">Select a customer to view their notifications.</p></div>
+        </section>
+        <footer><span>GOODFOOD <span class="brand-dot">/</span> LOCAL DEVELOPMENT</span><span>Kafka event-driven order lifecycle</span></footer>
+    </main>
+</body>
+</html>

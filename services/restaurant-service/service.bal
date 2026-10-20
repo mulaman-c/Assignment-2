@@ -38,7 +38,11 @@ function getKafkaBootstrapServers() returns string {
 }
 
 string kafkaBootstrapServers = getKafkaBootstrapServers();
-kafka:Producer restaurantProducer = checkpanic new (kafkaBootstrapServers);
+kafka:ProducerConfiguration producerConfigs = {
+    clientId: "restaurant-service-producer",
+    acks: "all"
+};
+kafka:Producer restaurantProducer = checkpanic new (kafkaBootstrapServers, producerConfigs);
 
 kafka:ConsumerConfiguration consumerConfigs = {
     groupId: "restaurant-service",

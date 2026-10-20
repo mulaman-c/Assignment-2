@@ -63,7 +63,11 @@ function getKafkaBootstrapServers() returns string {
 }
 
 string kafkaBootstrapServers = getKafkaBootstrapServers();
-kafka:Producer deliveryProducer = checkpanic new (kafkaBootstrapServers);
+kafka:ProducerConfiguration producerConfigs = {
+    clientId: "delivery-service-producer",
+    acks: "all"
+};
+kafka:Producer deliveryProducer = checkpanic new (kafkaBootstrapServers, producerConfigs);
 kafka:ConsumerConfiguration consumerConfigs = {
     groupId: "delivery-service",
     topics: ["orders.ready"],
@@ -126,6 +130,14 @@ service /delivery on new http:Listener(9095) {
 
     resource function get readyOrders() returns OrderEvent[] {
         return readyOrders.toArray();
+    }
+
+    resource function get drivers() returns Driver[] {
+        return driverTable.toArray();
+    }
+
+    resource function get deliveries() returns DeliveryAssignment[] {
+        return deliveryTable.toArray();
     }
 
     // 1. Register a delivery driver
